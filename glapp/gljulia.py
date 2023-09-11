@@ -27,7 +27,7 @@ class PyOGLApp():
     def manage_events(self, states):
         running = states["running"]
         paused = states["paused"]
-        speed = 1
+        speed = states["speed"]
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -37,32 +37,40 @@ class PyOGLApp():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                 paused = bool(1-paused)
             if event.type == pygame.KEYDOWN: # arrow keys
-                if event.type == K_RIGHT:
-                    speed += 1
-                if event.type == K_RIGHT:
-                    speed -= 1
+                if event.key == pygame.K_RIGHT:
+                    speed = 5
+                elif event.key == pygame.K_LEFT:
+                    speed = 0.2
+                else:
+                    speed = 1
         return {"running":running, "paused":paused, "speed":speed}
         
     def mainloop(self):
         states = {
             "running":True,
-            "paused":False
+            "paused":False,
+            "speed":1
         }
         running = states["running"]
         paused = states["paused"]
+        time_paused = 0
         self.initialise()
         while running:
+            ticks = pygame.time.get_ticks() * 0.002 - time_paused
             states = self.manage_events(states)
             running = states["running"]
             paused = states["paused"]
             speed = states["speed"]
+            ticks *= speed
             while paused:
                 states = self.manage_events(states)
                 running = states["running"]
                 paused = states["paused"]
-                self.display(0)
+                self.display(ticks)
                 pygame.display.flip()
-            self.display(speed)
+                if not paused:
+                    time_paused = (pygame.time.get_ticks()*0.002 - ticks)
+            self.display(ticks)
             pygame.display.flip()
             self.clock.tick(60)
         pygame.quit()

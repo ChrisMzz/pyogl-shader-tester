@@ -40,9 +40,9 @@ class Mesh:
         glBufferData(GL_ARRAY_BUFFER, uvs_data.ravel(), GL_STATIC_DRAW)
         
         
-    def draw(self, speed):
+    def draw(self, frame):
         timer_id = glGetUniformLocation(self.program_id, "iTime")
-        glUniform1f(timer_id, pygame.time.get_ticks() * 0.002 * speed)
+        glUniform1f(timer_id, frame)
         mouse_id = glGetUniformLocation(self.program_id, "iMouse")
         glUniform2f(mouse_id, pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
         glBindVertexArray(self.vao_ref)
