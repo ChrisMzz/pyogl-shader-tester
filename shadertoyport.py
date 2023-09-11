@@ -1,4 +1,4 @@
-from glapp.gljulia import *
+from glapp.pyoglapp import *
 from glapp.utils import *
 from glapp.gameobjects.mesh import *
 from OpenGL.GL import *

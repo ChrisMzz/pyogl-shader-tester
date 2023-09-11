@@ -2,6 +2,7 @@ import os
 from OpenGL.GL import *
 import pygame
 from pygame.locals import *
+import numpy as np
 
 
 # from https://gist.github.com/NickBeeuwsaert/fec10bd5d63b618e9432
@@ -28,6 +29,7 @@ class PyOGLApp():
         running = states["running"]
         paused = states["paused"]
         speed = states["speed"]
+        slowed = states["slowed"]
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -36,40 +38,56 @@ class PyOGLApp():
                 pygame.display.toggle_fullscreen()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                 paused = bool(1-paused)
-            if event.type == pygame.KEYDOWN: # arrow keys
+            if event.type == pygame.KEYDOWN: # press arrow keys
                 if event.key == pygame.K_RIGHT:
-                    speed = 5
+                    speed = 2
                 elif event.key == pygame.K_LEFT:
-                    speed = 0.2
-                else:
+                    speed = 0.5
+                if event.key == pygame.K_LCTRL:
+                    slowed = True
+            if event.type == pygame.KEYUP: # release arrow keys
+                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                     speed = 1
-        return {"running":running, "paused":paused, "speed":speed}
+                if event.key == pygame.K_LCTRL:
+                    slowed = False
+        return {"running":running, "paused":paused, "speed":speed, "slowed":slowed}
         
     def mainloop(self):
         states = {
             "running":True,
             "paused":False,
-            "speed":1
+            "speed":1,
+            "slowed":False
         }
         running = states["running"]
         paused = states["paused"]
+        speed = states["speed"]
+        slowed = states["slowed"]
+        
         time_paused = 0
+        slowed_amount = 0
         self.initialise()
+        origin = 0
         while running:
-            ticks = pygame.time.get_ticks() * 0.002 - time_paused
+            if slowed:
+                slowed_amount += 1/30
+            origin += np.log2(speed)*0.2
+            ticks = pygame.time.get_ticks()*0.002 - time_paused + origin - slowed_amount
             states = self.manage_events(states)
             running = states["running"]
             paused = states["paused"]
             speed = states["speed"]
-            ticks *= speed
+            slowed = states["slowed"]
+            #ticks *= speed
             while paused:
                 states = self.manage_events(states)
                 running = states["running"]
                 paused = states["paused"]
+                speed = 1
                 self.display(ticks)
                 pygame.display.flip()
                 if not paused:
-                    time_paused = (pygame.time.get_ticks()*0.002 - ticks)
+                    time_paused = (pygame.time.get_ticks()*0.002 - ticks + origin - slowed_amount)
             self.display(ticks)
             pygame.display.flip()
             self.clock.tick(60)
