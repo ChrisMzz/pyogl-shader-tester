@@ -19,7 +19,7 @@ class PyOGLApp():
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, 4)
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
         pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE, 32)
-        self.screen = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF|pygame.OPENGL|pygame.HWSURFACE)
+        self.screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE |pygame.DOUBLEBUF|pygame.OPENGL|pygame.HWSURFACE)
         pygame.display.set_caption("Shadertoy testing")
         self.program_id = None
         self.clock = pygame.time.Clock()
@@ -42,7 +42,7 @@ class PyOGLApp():
                 if event.key == pygame.K_RIGHT:
                     speed = 2
                 elif event.key == pygame.K_LEFT:
-                    speed = 0.5
+                    speed = 1/2
                 if event.key == pygame.K_LCTRL:
                     slowed = True
             if event.type == pygame.KEYUP: # release arrow keys
@@ -50,6 +50,8 @@ class PyOGLApp():
                     speed = 1
                 if event.key == pygame.K_LCTRL:
                     slowed = False
+            if event.type == pygame.VIDEORESIZE:
+                self.screen_width, self.screen_height = event.w, event.h
         return {"running":running, "paused":paused, "speed":speed, "slowed":slowed}
         
     def mainloop(self):
@@ -70,8 +72,8 @@ class PyOGLApp():
         origin = 0
         while running:
             if slowed:
-                slowed_amount += 1/30
-            origin += np.log2(speed)*0.2
+                slowed_amount += 1/35 # arbitrary
+            origin += np.log2(speed)*0.2 # origin displacement allows smooth fast-forward / fast-backward time control
             ticks = pygame.time.get_ticks()*0.002 - time_paused + origin - slowed_amount
             states = self.manage_events(states)
             running = states["running"]
@@ -91,15 +93,10 @@ class PyOGLApp():
             self.display(ticks)
             pygame.display.flip()
             self.clock.tick(60)
+            #x,y = pygame.mouse.get_pos()
+            #print((x/self.screen_width)*2-1, (y/self.screen_height)*2-1)
         pygame.quit()
 
-
-
-
-def draw(program_id):
-    timer_id = glGetUniformLocation(program_id, "iTime")
-    glUniform1f(timer_id, pygame.time.get_ticks()*0.1)
-    
 
 
 

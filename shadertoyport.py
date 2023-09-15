@@ -30,4 +30,4 @@ if __name__ == "__main__":
 
     glViewport(0, 0, width, height)
     
-    ShaderToyPort(width, height, "julia").mainloop()
+    ShaderToyPort(width, height, "incriter").mainloop()
