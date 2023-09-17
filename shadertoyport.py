@@ -5,13 +5,15 @@ from OpenGL.GL import *
 
 class ShaderToyPort(PyOGLApp):
     def __init__(self, width, height, frag_name):
-        super().__init__(width, height, 720, 480)
+        super().__init__(0, 0, width, height)
         self.screen_plane = None
         self.frag_name = frag_name
+        
         
     def initialise(self):
         self.program_id = create_program(open("shaders/vert.glsl", 'r').read(), open(f"shaders/frag_{self.frag_name}.glsl", 'r').read())
         self.screen_plane = Mesh(self.program_id)
+        self.update_colouring(0)
 
     def display(self, speed):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -25,6 +27,10 @@ class ShaderToyPort(PyOGLApp):
 if __name__ == "__main__":
     pygame.init()
     width, height = 720, 480
+    
+    # for screenshots
+    # width, height = 11520, 5760
+    
     pygame.display.set_mode((width, height), pygame.RESIZABLE | pygame.DOUBLEBUF|pygame.OPENGL|pygame.HWSURFACE)
     
 

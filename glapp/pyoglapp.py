@@ -3,7 +3,7 @@ from OpenGL.GL import *
 import pygame
 from pygame.locals import *
 import numpy as np
-
+from time import gmtime
 
 # from https://gist.github.com/NickBeeuwsaert/fec10bd5d63b618e9432
     
@@ -14,6 +14,7 @@ class PyOGLApp():
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (screen_posX, screen_posY)
         self.screen_width = screen_width
         self.screen_height = screen_height
+        self.screenshot_path = 'dump'
         pygame.init()
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, 4)
@@ -24,7 +25,14 @@ class PyOGLApp():
         self.program_id = None
         self.clock = pygame.time.Clock()
         
-
+      
+      
+    def update_colouring(self, n):
+        self.colouring = n
+        glUseProgram(self.program_id)
+        colouring_id = glGetUniformLocation(self.program_id, "colouring")
+        glUniform1i(colouring_id, self.colouring)
+    
     def manage_events(self, states):
         running = states["running"]
         paused = states["paused"]
@@ -38,13 +46,30 @@ class PyOGLApp():
                 pygame.display.toggle_fullscreen()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                 paused = bool(1-paused)
-            if event.type == pygame.KEYDOWN: # press arrow keys
+            if event.type == pygame.KEYDOWN: # press arrow keys or screenshot
                 if event.key == pygame.K_RIGHT:
                     speed = 2
                 elif event.key == pygame.K_LEFT:
                     speed = 1/2
                 if event.key == pygame.K_LCTRL:
                     slowed = True
+                if event.key == pygame.K_F12: # ~~find way to resize when taking screenshot~~ (not viable)
+                    filepath = self.screenshot_path + '/'
+                    screenshot_time = gmtime()
+                    for n in screenshot_time[:6]: # YYYY-MM-DD-hh-mm-ss
+                        filepath += str(n)
+                    filepath += '.png'
+                    buffer = glReadPixels(0, 0, self.screen_width, self.screen_height, GL_RGBA, GL_UNSIGNED_BYTE)
+                    pygame.image.save(pygame.transform.flip(pygame.image.fromstring(buffer, (self.screen_width, self.screen_height), "RGBA"), False, True), filepath)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1: # left click
+                    w,h = pygame.mouse.get_pos()
+                    print((w/self.screen_width)*2-1, -(h/self.screen_height)*2+1)
+                if event.button == 2: # middle click
+                    colouring = np.random.randint(0,8)
+                    while colouring == self.colouring:
+                        colouring = np.random.randint(0,8)
+                    self.update_colouring(colouring)
             if event.type == pygame.KEYUP: # release arrow keys
                 if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                     speed = 1
