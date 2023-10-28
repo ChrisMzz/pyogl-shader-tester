@@ -64,7 +64,7 @@ class PyOGLApp():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1: # left click
                     w,h = pygame.mouse.get_pos()
-                    print((w/self.screen_width)*2-1, -(h/self.screen_height)*2+1)
+                    print(((w/self.screen_width)*2-1)*2*1.2*(self.screen_width/(2*self.screen_height)), (((-h/self.screen_height)+1)*2-1)*1.2)
                 if event.button == 2: # middle click
                     colouring = np.random.randint(0,8)
                     while colouring == self.colouring:
