@@ -130,15 +130,16 @@ void main( )
 {
     vec2 fragCoord = uv*iResolution.xy; // this creates an equivalent to ShaderToy's fragCoord variable
     vec2 new_uv = (fragCoord*2. - iResolution.xy)/iResolution.y; // centered
+    // implement zoom center ? default vec2(0.,0.)
 
-    vec2 z = new_uv*1.2;
+    vec2 z = new_uv*1.2; // zoom value
     //float gr = 0.65+sin(iTime*0.01)*0.05; //varying circle radii
     //vec2 c = vec2(cos(iTime*0.04), sin(iTime*0.04))*gr; // complex variable c going in circles around origin
     
     // fixed
     //vec2 c = vec2(-0.8,0.156);
-    vec2 c = vec2((iMouse.x/iResolution.x)*2.-1., -(iMouse.y/iResolution.y)*2.+1.);
-
+    //vec2 c = vec2(((iMouse.x/iResolution.x)*2.-1.)*2*1.2*(iResolution.x/(2.*iResolution.y)), ((-(iMouse.y/iResolution.y)+1.)*2.-1.)*1.2);
+    vec2 c = vec2(-0.945, -0.275);
 
     /*
         Compute iter iterates of f on the rendered complex plane
@@ -157,12 +158,12 @@ void main( )
     
     for (int i=0; i<iter; i++) {
 
-        // z**2 + c
+        /* z**2 + c
         z = vec2(
         pow(z.x,2.0) - pow(z.y,2.0) + c.x,
         2.0*z.x*z.y + c.y
         );
-        //
+        */
 
         /* sin(z)
         z = vec2(
@@ -171,17 +172,24 @@ void main( )
         );
         */
 
-        /* shuriken
+        // shuriken
         z = vec2(
         z.x*exp(sin(z.x*z.x-z.y*z.y)*(exp(2.*z.x*z.y)-exp(-2.*z.x*z.y)))*cos(cos(z.x*z.x-z.y*z.y)*(exp(2.*z.x*z.y)+exp(-2.*z.x*z.y))) - z.y*exp(sin(z.x*z.x-z.y*z.y)*(exp(2.*z.x*z.y)-exp(-2.*z.x*z.y)))*sin(cos(z.x*z.x-z.y*z.y)*(exp(2.*z.x*z.y)+exp(-2.*z.x*z.y))) + c.x,
         z.y*exp(sin(z.x*z.x-z.y*z.y)*(exp(2.*z.x*z.y)-exp(-2.*z.x*z.y)))*cos(cos(z.x*z.x-z.y*z.y)*(exp(2.*z.x*z.y)+exp(-2.*z.x*z.y))) + z.x*exp(sin(z.x*z.x-z.y*z.y)*(exp(2.*z.x*z.y)-exp(-2.*z.x*z.y)))*sin(cos(z.x*z.x-z.y*z.y)*(exp(2.*z.x*z.y)+exp(-2.*z.x*z.y))) + c.y
         );
-        */
+        //
 
         /* z**3 + c
         z = vec2(
         pow(z.x,3.0) - 3.0*z.x*pow(z.y,2.0) + c.x,
         3.0*pow(z.x,2.0)*z.y - pow(z.y,3.0) + c.y
+        );
+        */
+
+        /* test
+        z = vec2(
+        pow(z.x,4.0)-6.*pow(z.y,2.0)*pow(z.x,2.0)+c.x,
+        pow(z.y,4.0)-4.*z.x*pow(z.y,3.0)+4.*z.y*pow(z.x,3.0)+c.y
         );
         */
 
