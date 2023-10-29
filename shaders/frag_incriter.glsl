@@ -189,8 +189,8 @@ void main( )
 
         /* test
         z = vec2(
-        pow(z.x,4.0)-6.*pow(z.y,2.0)*pow(z.x,2.0)+c.x,
-        pow(z.y,4.0)-4.*z.x*pow(z.y,3.0)+4.*z.y*pow(z.x,3.0)+c.y
+        pow(z.x,4.0)-6.*pow(z.y,2.0)*pow(z.x,2.0)+pow(z.y,4.0)+c.x,
+        -4.*z.x*pow(z.y,3.0)+4.*z.y*pow(z.x,3.0)+c.y
         );
         */
 
