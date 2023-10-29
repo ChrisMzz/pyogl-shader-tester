@@ -30,6 +30,7 @@ if __name__ == "__main__":
     
     # for screenshots
     # width, height = 11520, 5760
+    # width, height = 3840, 2160
     
     pygame.display.set_mode((width, height), pygame.RESIZABLE | pygame.DOUBLEBUF|pygame.OPENGL|pygame.HWSURFACE)
     

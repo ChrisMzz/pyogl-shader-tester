@@ -3,6 +3,8 @@ in vec2 uv;
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
+uniform vec2 center;
+uniform float zoom_amount;
 uniform int colouring;
 out vec4 fragColor;
 
@@ -130,23 +132,22 @@ void main( )
 {
     vec2 fragCoord = uv*iResolution.xy; // this creates an equivalent to ShaderToy's fragCoord variable
     vec2 new_uv = (fragCoord*2. - iResolution.xy)/iResolution.y; // centered
-    // implement zoom center ? default vec2(0.,0.)
 
-    vec2 z = new_uv*1.2; // zoom value
+
+    vec2 z = new_uv*zoom_amount+center;
     //float gr = 0.65+sin(iTime*0.01)*0.05; //varying circle radii
     //vec2 c = vec2(cos(iTime*0.04), sin(iTime*0.04))*gr; // complex variable c going in circles around origin
     
     // fixed
     //vec2 c = vec2(-0.8,0.156);
-    //vec2 c = vec2(((iMouse.x/iResolution.x)*2.-1.)*2*1.2*(iResolution.x/(2.*iResolution.y)), ((-(iMouse.y/iResolution.y)+1.)*2.-1.)*1.2);
+    //vec2 c = vec2(((iMouse.x/iResolution.x)*2.-1.)*2*zoom_amount*(iResolution.x/(2.*iResolution.y))-center.x, ((-(iMouse.y/iResolution.y)+1.)*2.-1.)*zoom_amount)-center.y;
     vec2 c = vec2(-0.945, -0.275);
+    //vec2 c = vec2(-0.5,0.);
 
     /*
         Compute iter iterates of f on the rendered complex plane
         z.x should always be overwritten to real part of f(z),
         z.y should always be overwritten to imaginary part of f(z).
-        
-        Somehow found way to code an escape uv ? Could allow me to use Bernstein type colourings.
     */
 
     int iter = int(iTime*10.);

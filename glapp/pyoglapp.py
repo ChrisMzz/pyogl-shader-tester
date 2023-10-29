@@ -15,6 +15,8 @@ class PyOGLApp():
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.screenshot_path = 'dump'
+        self.zoom_amount = 1.2
+        self.center = (0,0)
         pygame.init()
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, 4)
@@ -32,6 +34,13 @@ class PyOGLApp():
         glUseProgram(self.program_id)
         colouring_id = glGetUniformLocation(self.program_id, "colouring")
         glUniform1i(colouring_id, self.colouring)
+        
+    def update_zoom(self):
+        glUseProgram(self.program_id)
+        zoom_amount_id = glGetUniformLocation(self.program_id, "zoom_amount")
+        glUniform1f(zoom_amount_id, self.zoom_amount)
+        center_id = glGetUniformLocation(self.program_id, "center")
+        glUniform2f(center_id, *self.center)
     
     def manage_events(self, states):
         running = states["running"]
@@ -61,10 +70,16 @@ class PyOGLApp():
                     filepath += '.png'
                     buffer = glReadPixels(0, 0, self.screen_width, self.screen_height, GL_RGBA, GL_UNSIGNED_BYTE)
                     pygame.image.save(pygame.transform.flip(pygame.image.fromstring(buffer, (self.screen_width, self.screen_height), "RGBA"), False, True), filepath)
+            if event.type == pygame.MOUSEWHEEL:
+                cx,cy = pygame.mouse.get_pos()
+                self.center = ((cx/self.screen_width)*2-1)*2*self.zoom_amount*(self.screen_width/(2*self.screen_height))+self.center[0], (((-cy/self.screen_height)+1)*2-1)*self.zoom_amount+self.center[1]
+                self.zoom_amount *= (1.25-0.75*event.y)
+                print(self.center)
+                self.update_zoom()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1: # left click
                     w,h = pygame.mouse.get_pos()
-                    print(((w/self.screen_width)*2-1)*2*1.2*(self.screen_width/(2*self.screen_height)), (((-h/self.screen_height)+1)*2-1)*1.2)
+                    print(((w/self.screen_width)*2-1)*2*self.zoom_amount*(self.screen_width/(2*self.screen_height))+self.center[0], (((-h/self.screen_height)+1)*2-1)*self.zoom_amount+self.center[1])
                 if event.button == 2: # middle click
                     colouring = np.random.randint(0,8)
                     while colouring == self.colouring:
@@ -77,6 +92,7 @@ class PyOGLApp():
                     slowed = False
             if event.type == pygame.VIDEORESIZE:
                 self.screen_width, self.screen_height = event.w, event.h
+        
         return {"running":running, "paused":paused, "speed":speed, "slowed":slowed}
         
     def mainloop(self):
@@ -95,6 +111,7 @@ class PyOGLApp():
         slowed_amount = 0
         self.initialise()
         origin = 0
+        self.update_zoom()
         while running:
             if slowed:
                 slowed_amount += 1/35 # arbitrary
